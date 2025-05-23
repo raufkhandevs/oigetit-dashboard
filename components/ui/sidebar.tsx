@@ -10,18 +10,17 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
-import { Sheet, SheetContent } from "@/components/ui/sheet"
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { BarChart2, Users, Map, Hash, FileText, ChevronRight, Settings, HelpCircle } from "lucide-react"
+import { BarChart2, Users, Map, Hash, FileText } from "lucide-react"
 
 const SIDEBAR_COOKIE_NAME = "sidebar:state"
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
 const SIDEBAR_WIDTH = "16rem"
-const SIDEBAR_WIDTH_MOBILE = "18rem"
 const SIDEBAR_WIDTH_ICON = "3rem"
 const SIDEBAR_KEYBOARD_SHORTCUT = "b"
 
@@ -57,8 +56,6 @@ const SidebarProvider = React.forwardRef<
   const isMobile = useIsMobile()
   const [openMobile, setOpenMobile] = React.useState(false)
 
-  // This is the internal state of the sidebar.
-  // We use openProp and setOpenProp for control from outside the component.
   const [_open, _setOpen] = React.useState(defaultOpen)
   const open = openProp ?? _open
   const setOpen = React.useCallback(
@@ -70,18 +67,15 @@ const SidebarProvider = React.forwardRef<
         _setOpen(openState)
       }
 
-      // This sets the cookie to keep the sidebar state.
       document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`
     },
     [setOpenProp, open],
   )
 
-  // Helper to toggle the sidebar.
   const toggleSidebar = React.useCallback(() => {
     return isMobile ? setOpenMobile((open) => !open) : setOpen((open) => !open)
   }, [isMobile, setOpen, setOpenMobile])
 
-  // Adds a keyboard shortcut to toggle the sidebar.
   React.useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === SIDEBAR_KEYBOARD_SHORTCUT && (event.metaKey || event.ctrlKey)) {
@@ -94,8 +88,6 @@ const SidebarProvider = React.forwardRef<
     return () => window.removeEventListener("keydown", handleKeyDown)
   }, [toggleSidebar])
 
-  // We add a state so that we can do data-state="expanded" or "collapsed".
-  // This makes it easier to style the sidebar with Tailwind classes.
   const state = open ? "expanded" : "collapsed"
 
   const contextValue = React.useMemo<SidebarContext>(
@@ -134,7 +126,17 @@ const SidebarProvider = React.forwardRef<
 })
 SidebarProvider.displayName = "SidebarProvider"
 
-export function Sidebar() {
+export function Sidebar({ 
+  className,
+  onNavigate,
+  isMobileOpen,
+  onMobileOpenChange
+}: { 
+  className?: string;
+  onNavigate?: () => void;
+  isMobileOpen?: boolean;
+  onMobileOpenChange?: (open: boolean) => void;
+} = {}) {
   const pathname = usePathname()
   const isMobile = useIsMobile()
   const [open, setOpen] = React.useState(false)
@@ -147,15 +149,21 @@ export function Sidebar() {
     { icon: Hash, href: "/top-themes", label: "Top Themes" },
   ]
 
-  const sidebarContent = (
-    <div className="flex flex-col h-full bg-white border-r border-gray-200">
+  const handleNavClick = (href: string) => {
+    if (onNavigate) {
+      onNavigate()
+    }
+  }
+
+  const desktopSidebarContent = (
+    <div className={cn("flex flex-col h-full bg-white border-r border-gray-200", className)}>
       <div className="w-16 flex flex-col items-center py-5 h-full">
-        {/* Navigation items */}
         <div className="flex flex-col items-center space-y-4">
           {navItems.map((item) => (
             <Link
               key={item.href}
               href={item.href}
+              onClick={() => handleNavClick(item.href)}
               className={`p-2.5 rounded-md transition-colors w-11 h-11 flex items-center justify-center
                 ${pathname === item.href ? "bg-[#eef1fe] text-[#3f51b5]" : "text-gray-500 hover:bg-gray-100"}`}
               title={item.label}
@@ -168,17 +176,54 @@ export function Sidebar() {
     </div>
   )
 
-  if (isMobile) {
+  const mobileSidebarContent = (
+    <div className="flex flex-col h-full bg-white">
+      <SheetHeader className="p-4 border-b border-gray-200 text-left">
+        <SheetTitle className="text-lg font-semibold text-gray-900">Main Menu</SheetTitle>
+      </SheetHeader>
+      <div className="flex-1 px-4 py-6">
+        <div className="space-y-2">
+          {navItems.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              onClick={() => handleNavClick(item.href)}
+              className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors
+                ${pathname === item.href 
+                  ? "bg-[#eef1fe] text-[#3f51b5]" 
+                  : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                }`}
+            >
+              <item.icon className="w-5 h-5 mr-3" />
+              {item.label}
+            </Link>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+
+  if (isMobile && isMobileOpen !== undefined && onMobileOpenChange) {
     return (
-      <Sheet open={open} onOpenChange={setOpen}>
-        <SheetContent side="left" className="p-0 w-16">
-          {sidebarContent}
+      <Sheet open={isMobileOpen} onOpenChange={onMobileOpenChange}>
+        <SheetContent side="left" className="p-0 w-80 sm:w-96">
+          {mobileSidebarContent}
         </SheetContent>
       </Sheet>
     )
   }
 
-  return sidebarContent
+  if (isMobile) {
+    return (
+      <Sheet open={open} onOpenChange={setOpen}>
+        <SheetContent side="left" className="p-0 w-80 sm:w-96">
+          {mobileSidebarContent}
+        </SheetContent>
+      </Sheet>
+    )
+  }
+
+  return desktopSidebarContent
 }
 
 const SidebarTrigger = React.forwardRef<React.ElementRef<typeof Button>, React.ComponentProps<typeof Button>>(
@@ -454,7 +499,6 @@ const SidebarMenuAction = React.forwardRef<
       data-sidebar="menu-action"
       className={cn(
         "absolute right-1 top-1.5 flex aspect-square w-5 items-center justify-center rounded-md p-0 text-sidebar-foreground outline-none ring-sidebar-ring transition-transform hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 peer-hover/menu-button:text-sidebar-accent-foreground [&>svg]:size-4 [&>svg]:shrink-0",
-        // Increases the hit area of the button on mobile.
         "after:absolute after:-inset-2 after:md:hidden",
         "peer-data-[size=sm]/menu-button:top-1",
         "peer-data-[size=default]/menu-button:top-1.5",
@@ -496,7 +540,6 @@ const SidebarMenuSkeleton = React.forwardRef<
     showIcon?: boolean
   }
 >(({ className, showIcon = false, ...props }, ref) => {
-  // Random width between 50 to 90%.
   const width = React.useMemo(() => {
     return `${Math.floor(Math.random() * 40) + 50}%`
   }, [])

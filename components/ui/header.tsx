@@ -1,9 +1,23 @@
-import { Bookmark, Grid, ChevronDown } from "lucide-react"
+import { Bookmark, Grid, ChevronDown, Menu } from "lucide-react"
+import { useMobileMenu } from "@/components/layout/dashboard-layout"
 
 export function Header() {
+  const { isMobileMenuOpen, setIsMobileMenuOpen } = useMobileMenu()
+
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen)
+  }
+
   return (
     <header className="flex justify-between items-center h-16 px-4 bg-[#3f51b5] text-white shadow-md">
       <div className="flex items-center">
+        <button 
+          className="p-2 hover:bg-[#4a5fc1] rounded-md lg:hidden mr-2"
+          onClick={toggleMobileMenu}
+        >
+          <Menu size={20} />
+        </button>
+        
         <div className="flex items-center">
           <span className="text-white font-bold text-lg ml-2">UPDATED LOGO</span>
         </div>

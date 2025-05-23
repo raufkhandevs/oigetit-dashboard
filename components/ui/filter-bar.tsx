@@ -2,7 +2,7 @@ import { Calendar, Filter, X, ChevronDown, Menu } from "lucide-react"
 import { Button } from "../ui/button"
 import { Badge } from "../ui/badge"
 import { useState, useRef, useEffect } from "react"
-import { useDateRange } from "@/components/layout/dashboard-layout"
+import { useDateRange, useSentimentFilter, SentimentFilter } from "@/components/layout/dashboard-layout"
 
 interface ToolbarProps {
   dateRange?: string
@@ -22,6 +22,7 @@ export function FilterBar({
   const filterMenuRef = useRef<HTMLDivElement>(null)
   
   const { customDateRange, setCustomDateRange } = useDateRange()
+  const { activeSentimentFilter, setActiveSentimentFilter } = useSentimentFilter()
   
   const [startDate, setStartDate] = useState("")
   const [endDate, setEndDate] = useState("")
@@ -50,6 +51,17 @@ export function FilterBar({
     } else {
       setInternalActiveTab(tab)
     }
+  }
+
+  const handleSentimentFilter = (sentiment: SentimentFilter) => {
+    setActiveSentimentFilter(sentiment)
+  }
+
+  const getSentimentFilterClass = (sentiment: SentimentFilter) => {
+    const isActive = activeSentimentFilter === sentiment || (sentiment === 'all' && activeSentimentFilter === 'all')
+    return `cursor-pointer transition-all duration-200 rounded-full p-1 ${
+      isActive ? 'bg-blue-500 bg-opacity-20 scale-110' : 'hover:scale-105 opacity-70 hover:opacity-100 hover:bg-gray-100 hover:bg-opacity-50'
+    }`
   }
   
   const handleDatePickerToggle = () => {
@@ -116,59 +128,71 @@ export function FilterBar({
       document.removeEventListener("mousedown", handleClickOutside)
     }
   }, [])
+
+  const SentimentEmojis = () => (
+    <div className={`flex items-center gap-1 bg-white rounded-full px-2 py-1 border border-gray-200  ${activeSentimentFilter !== 'all' ? 'w-[164px]' : 'w-32'}`}>
+      <div
+        onClick={() => handleSentimentFilter('positive')}
+        className={getSentimentFilterClass('positive')}
+        title="Filter by Positive Sentiment"
+      >
+        <img 
+          src="/positive-emoji.png" 
+          alt="Positive" 
+          width={24} 
+          height={24} 
+        />
+      </div>
+      <div
+        onClick={() => handleSentimentFilter('neutral')}
+        className={getSentimentFilterClass('neutral')}
+        title="Filter by Neutral Sentiment"
+      >
+        <img 
+          src="/moderate-emoji.png" 
+          alt="Neutral" 
+          width={24} 
+          height={24} 
+        />
+      </div>
+      <div
+        onClick={() => handleSentimentFilter('negative')}
+        className={getSentimentFilterClass('negative')}
+        title="Filter by Negative Sentiment"
+      >
+        <img 
+          src="/nagetive-emoji.png" 
+          alt="Negative" 
+          width={24} 
+          height={24} 
+        />
+      </div>
+      
+      <svg width="3" height="16" viewBox="0 0 3 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0.86 10.6L0.6 0.719999H2.52L2.26 10.6H0.86ZM1.54 15.2C1.16667 15.2 0.86 15.0733 0.62 14.82C0.38 14.5667 0.26 14.2533 0.26 13.88C0.26 13.5067 0.38 13.2 0.62 12.96C0.86 12.7067 1.16667 12.58 1.54 12.58C1.92667 12.58 2.24 12.7067 2.48 12.96C2.72 13.2 2.84 13.5067 2.84 13.88C2.84 14.2533 2.72 14.5667 2.48 14.82C2.24 15.0733 1.92667 15.2 1.54 15.2Z" fill="#FD9644"/>
+      </svg>
+
+      {activeSentimentFilter !== 'all' && (
+        <button
+          onClick={() => handleSentimentFilter('all')}
+          className="ml-2 text-xs text-gray-500 hover:text-gray-700 underline"
+          title="Clear sentiment filter"
+        >
+          Clear
+        </button>
+      )}
+    </div>
+  )
   
   return (
     <div className="bg-[#5c6bc0] text-white">
-      {/* Main layout container - switch to column on mobile */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
-        {/* Filter section - hidden on mobile, shown through menu */}
-        <div className="hidden lg:flex lg:items-center lg:gap-2 p-2">
-          <Button variant="ghost" size="sm" className="text-white h-8 px-3 hover:bg-white/10">
-            <Filter className="h-4 w-4 mr-2" />
-            Filters
-          </Button>
-          <div className="flex items-center gap-1 bg-white rounded-full px-2 py-1">
-            <img 
-              src="/positive-emoji.png" 
-              alt="Positive" 
-              width={24} 
-              height={24} 
-              className="mr-1" 
-            />
-            <img 
-              src="/moderate-emoji.png" 
-              alt="Positive" 
-              width={24} 
-              height={24} 
-              className="mr-1" 
-            />
-            <img 
-              src="/nagetive-emoji.png" 
-              alt="Negative" 
-              width={24} 
-              height={24} 
-              className="mr-1" 
-            />
-            
-  <svg width="3" height="16" viewBox="0 0 3 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <path d="M0.86 10.6L0.6 0.719999H2.52L2.26 10.6H0.86ZM1.54 15.2C1.16667 15.2 0.86 15.0733 0.62 14.82C0.38 14.5667 0.26 14.2533 0.26 13.88C0.26 13.5067 0.38 13.2 0.62 12.96C0.86 12.7067 1.16667 12.58 1.54 12.58C1.92667 12.58 2.24 12.7067 2.48 12.96C2.72 13.2 2.84 13.5067 2.84 13.88C2.84 14.2533 2.72 14.5667 2.48 14.82C2.24 15.0733 1.92667 15.2 1.54 15.2Z" fill="#FD9644"/>
-  </svg>
-
-          </div>
+        <div className="hidden lg:flex lg:items-center lg:gap-2 p-2 flex-wrap">
+          <SentimentEmojis />
 
           <Badge
             variant="outline"
-            className="bg-white text-white border-none rounded-full flex items-center gap-1 px-3 py-1"
-          >
-            <span className="bg-[#6989DD] text-white rounded-full h-5 w-5 flex items-center justify-center text-xs font-medium">
-              0
-            </span>
-            <span className="ml-1 text-black">Media types</span>
-          </Badge>
-
-          <Badge
-            variant="outline"
-            className="bg-white text-white border-none rounded-full flex items-center gap-1 px-3 py-1"
+            className="bg-white text-white border-none rounded-full flex items-center gap-1 px-3 py-[11px]"
           >
             <span className="bg-[#6989DD] text-white rounded-full h-5 w-5 flex items-center justify-center text-xs font-medium">
               0
@@ -178,7 +202,7 @@ export function FilterBar({
 
           <Badge
             variant="outline"
-            className="bg-white text-white border-none rounded-full flex items-center gap-1 px-3 py-1"
+            className="bg-white text-white border-none rounded-full flex items-center gap-1 px-3 py-[11px]"
           >
             <span className="bg-[#6989DD] text-white rounded-full h-5 w-5 flex items-center justify-center text-xs font-medium">
               0
@@ -188,7 +212,7 @@ export function FilterBar({
 
           <Badge
             variant="outline"
-            className="bg-white text-white border-none rounded-full flex items-center gap-1 px-3 py-1"
+            className="bg-white text-white border-none rounded-full flex items-center gap-1 px-3 py-[11px]"
           >
             <span className="bg-[#6989DD] text-white rounded-full h-5 w-5 flex items-center justify-center text-xs font-medium">
               0
@@ -197,7 +221,6 @@ export function FilterBar({
           </Badge>
         </div>
 
-        {/* Mobile filter button */}
         <div className="flex lg:hidden p-2 justify-between items-center">
           <div className="relative">
             <Button variant="ghost" size="sm" onClick={toggleFilterMenu} className="text-white h-8 px-3 hover:bg-white/10">
@@ -213,11 +236,7 @@ export function FilterBar({
                 <div className="space-y-3">
                   <h3 className="font-medium text-gray-700">Filters</h3>
                   
-                  <div className="flex items-center gap-1 bg-white rounded-full px-2 py-1 border border-gray-200">
-                    <img src="/positive-emoji.png" alt="Positive" width={24} height={24} className="mr-1" />
-                    <img src="/moderate-emoji.png" alt="Positive" width={24} height={24} className="mr-1" />
-                    <img src="/nagetive-emoji.png" alt="Negative" width={24} height={24} className="mr-1" />
-                  </div>
+                  <SentimentEmojis />
                   
                   <div className="flex flex-col gap-2">
                     <Badge
@@ -265,7 +284,6 @@ export function FilterBar({
             )}
           </div>
 
-          {/* Mobile time control toggle button */}
           <div className="px-2 py-1">
             <button 
               onClick={handleDatePickerToggle}
@@ -278,9 +296,7 @@ export function FilterBar({
           </div>
         </div>
 
-        {/* Time range controls */}
-        <div className="w-full lg:w-auto flex flex-col lg:flex-row lg:items-center overflow-x-auto">
-          {/* Controls for expand/collapse */}
+        <div className="w-full lg:w-auto flex flex-col lg:flex-row lg:items-center">
           <div className="hidden lg:flex p-4 mr-4">
             <button className="flex items-center justify-center h-10 w-10 text-white">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

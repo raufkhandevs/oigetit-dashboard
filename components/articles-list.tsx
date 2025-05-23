@@ -63,8 +63,8 @@ export function ArticlesList() {
           {articles.slice(0, 10).map((article, index) => (
             <div key={article.id || index} className="border-b pb-4 last:border-b-0">
               <h3 className="font-medium text-lg">
-                {article.url ? (
-                  <Link href={article.url} target="_blank" rel="noopener noreferrer" className="hover:text-blue-600 hover:underline flex items-start">
+                {article.urllink ? (
+                  <Link href={article.urllink} target="_blank" rel="noopener noreferrer" className="hover:text-blue-600 hover:underline flex items-start">
                     {article.title || "Untitled Article"}
                     <ExternalLinkIcon className="ml-1 h-4 w-4 inline-block" />
                   </Link>
@@ -75,12 +75,12 @@ export function ArticlesList() {
               <div className="flex items-center text-sm text-gray-500 mt-1">
                 <span className="flex items-center">
                   <CalendarIcon className="mr-1 h-4 w-4" />
-                  {article.date ? new Date(article.date).toLocaleDateString() : "N/A"}
+                  {article.pubdate ? new Date(article.pubdate).toLocaleDateString() : "N/A"}
                 </span>
                 <span className="mx-2">•</span>
-                <span>{article.source || "Unknown Source"}</span>
+                <span>{article.feed || "Unknown Source"}</span>
               </div>
-              <p className="mt-2 text-sm text-gray-700">{article.snippet || "No description available"}</p>
+              <p className="mt-2 text-sm text-gray-700">{article.description || "No description available"}</p>
             </div>
           ))}
         </div>

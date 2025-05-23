@@ -21,12 +21,24 @@ export interface CountryDataPoint {
 }
 
 export interface Article {
-  id: string;
+  id: number;
   title: string;
-  url: string;
-  source: string;
-  date: string;
-  snippet: string;
+  description: string;
+  pubdate: string;
+  urllink: string;
+  rssfeed: number;
+  imagelink: string;
+  videolink: string;
+  feed: string;
+  trusted: number;
+  happiness: number;
+  politicalbias: number;
+}
+
+export interface ArticlesResponse {
+  result: Article[];
+  total_count: number;
+  page_count: number;
 }
 
 export interface Influencer {
@@ -152,10 +164,7 @@ export const fetchInfluencers = async (
   try {
     const { startDate, endDate } = customDateRange || getDateRange(timeRange);
     const params = buildQueryParams(startDate, endDate, hashtag);
-    
-    // In a real implementation, we would call the actual API endpoint
-    // const response = await axios.get(`${API_BASE_URL}/Influencers`, { params });
-    // return response.data;
+  
     
     // For now, we'll return mock data that matches the screenshot
     return Array(13).fill(null).map((_, i) => ({
@@ -172,6 +181,68 @@ export const fetchInfluencers = async (
     }));
   } catch (error) {
     console.error(`Error fetching influencers:`, error);
+    throw error;
+  }
+};
+
+export const fetchArticlesForDate = async (
+  date: string,
+  hashtag: string,
+  sentiment: string = 'all'
+): Promise<ArticlesResponse> => {
+  try {
+    const queryParams = {
+      StartDate: date,
+      EndDate: date,
+      Query: hashtag,
+      Country: null,
+      Sort: 1,
+      Sentiment: sentiment,
+      Size: 250
+    };
+    
+    const params = {
+      json: JSON.stringify(queryParams)
+    };
+    
+    console.log('Fetching articles with params:', queryParams);
+    
+    const response = await axios.get(`${API_BASE_URL}/Articles`, { params });
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching articles for date:`, error);
+    throw error;
+  }
+};
+
+export const fetchArticlesForCountry = async (
+  startDate: string,
+  endDate: string,
+  hashtag: string,
+  country: string,
+  sentiment: string = 'all'
+): Promise<ArticlesResponse> => {
+  try {
+    const queryParams = {
+      StartDate: startDate,
+      EndDate: endDate,
+      Query: hashtag,
+      Country: country,
+      Sort: 1,
+      Sentiment: sentiment,
+      Size: 250
+    };
+    
+    const params = {
+      json: JSON.stringify(queryParams)
+    };
+    
+    console.log('Fetching articles for country with params:', queryParams);
+    
+    const response = await axios.get(`${API_BASE_URL}/Articles`, { params });
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching articles for country:`, error);
     throw error;
   }
 }; 
