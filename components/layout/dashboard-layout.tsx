@@ -165,7 +165,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   
   const formattedDateRange = customDateRange 
     ? `${formatDate(customDateRange.startDate)} - ${formatDate(customDateRange.endDate)}`
-    : "10/05/25 - 11/05/25"; 
+    : "October 5, 2025 - November 5, 2025"; 
   
   const handleTimeRangeChange = (range: string) => {
     setActiveTimeRange(range)

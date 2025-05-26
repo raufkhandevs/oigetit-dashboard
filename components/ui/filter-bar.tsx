@@ -11,7 +11,7 @@ interface ToolbarProps {
 }
 
 export function FilterBar({ 
-  dateRange = "10/05/25 - 11/05/25", 
+  dateRange = "October 5, 2025 - November 5, 2025", 
   activeTab: externalActiveTab,
   onTabChange
 }: ToolbarProps) {
@@ -27,6 +27,23 @@ export function FilterBar({
   const [startDate, setStartDate] = useState("")
   const [endDate, setEndDate] = useState("")
   
+  // Helper functions to convert between ISO and American formats
+  const formatToAmerican = (isoDate: string) => {
+    if (!isoDate) return "";
+    const date = new Date(isoDate);
+    return date.toLocaleDateString('en-US', { 
+      month: 'long', 
+      day: 'numeric', 
+      year: 'numeric' 
+    });
+  }
+  
+  const formatToISO = (americanDate: string) => {
+    if (!americanDate) return "";
+    const date = new Date(americanDate);
+    return date.toISOString().split('T')[0];
+  }
+  
   const activeTab = externalActiveTab || internalActiveTab
   
   const tabs = ["1D", "7D", "30D", "3M", "6M", "13M"]
@@ -35,9 +52,9 @@ export function FilterBar({
     if (!dateString) return "";
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', { 
-      month: '2-digit', 
-      day: '2-digit', 
-      year: '2-digit' 
+      month: 'long', 
+      day: 'numeric', 
+      year: 'numeric' 
     });
   }
 
@@ -69,15 +86,15 @@ export function FilterBar({
     
     if (!isDatePickerOpen) {
       if (customDateRange) {
-        setStartDate(customDateRange.startDate)
-        setEndDate(customDateRange.endDate)
+        setStartDate(formatToAmerican(customDateRange.startDate))
+        setEndDate(formatToAmerican(customDateRange.endDate))
       } else {
         const today = new Date()
         const lastMonth = new Date()
         lastMonth.setMonth(today.getMonth() - 1)
         
-        setStartDate(lastMonth.toISOString().split('T')[0])
-        setEndDate(today.toISOString().split('T')[0])
+        setStartDate(formatToAmerican(lastMonth.toISOString().split('T')[0]))
+        setEndDate(formatToAmerican(today.toISOString().split('T')[0]))
       }
     }
   }
@@ -92,7 +109,11 @@ export function FilterBar({
         return;
       }
       
-      setCustomDateRange({ startDate, endDate });
+      // Convert American format back to ISO for storage
+      setCustomDateRange({ 
+        startDate: formatToISO(startDate), 
+        endDate: formatToISO(endDate) 
+      });
       
       if (onTabChange) {
         onTabChange("");
@@ -104,8 +125,8 @@ export function FilterBar({
   
   useEffect(() => {
     if (customDateRange) {
-      setStartDate(customDateRange.startDate);
-      setEndDate(customDateRange.endDate);
+      setStartDate(formatToAmerican(customDateRange.startDate));
+      setEndDate(formatToAmerican(customDateRange.endDate));
     }
   }, [customDateRange]);  
   
@@ -352,8 +373,8 @@ export function FilterBar({
                       <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
                       <input
                         type="date"
-                        value={startDate}
-                        onChange={(e) => setStartDate(e.target.value)}
+                        value={formatToISO(startDate)}
+                        onChange={(e) => setStartDate(formatToAmerican(e.target.value))}
                         className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-black"
                       />
                     </div>
@@ -361,8 +382,8 @@ export function FilterBar({
                       <label className="block text-sm font-medium text-gray-700 mb-1">End Date</label>
                       <input
                         type="date"
-                        value={endDate}
-                        onChange={(e) => setEndDate(e.target.value)}
+                        value={formatToISO(endDate)}
+                        onChange={(e) => setEndDate(formatToAmerican(e.target.value))}
                         className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-black"
                       />
                     </div>

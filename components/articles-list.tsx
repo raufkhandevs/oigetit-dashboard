@@ -75,7 +75,11 @@ export function ArticlesList() {
               <div className="flex items-center text-sm text-gray-500 mt-1">
                 <span className="flex items-center">
                   <CalendarIcon className="mr-1 h-4 w-4" />
-                  {article.pubdate ? new Date(article.pubdate).toLocaleDateString() : "N/A"}
+                  {article.pubdate ? new Date(article.pubdate).toLocaleDateString('en-US', { 
+                    month: 'long', 
+                    day: 'numeric', 
+                    year: 'numeric' 
+                  }) : "N/A"}
                 </span>
                 <span className="mx-2">•</span>
                 <span>{article.feed || "Unknown Source"}</span>
