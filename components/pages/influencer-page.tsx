@@ -6,6 +6,9 @@ import { useInfluencers } from "@/app/hooks/use-api-data"
 import { useTimeRange, useHashtag, useSentimentFilter } from "@/components/layout/dashboard-layout"
 import { Maximize, MoreVertical, ChevronRight } from "lucide-react"
 import { useState } from "react"
+import { TopConversations } from "@/components/ui/top-conversations";
+import { Dialog, DialogContent } from "../ui/dialog";
+import Link from "next/link"
 
 export function InfluencerPage() {
   const { activeTimeRange } = useTimeRange()
@@ -13,7 +16,7 @@ export function InfluencerPage() {
   const { activeSentimentFilter } = useSentimentFilter()
   const { data: influencers, isLoading } = useInfluencers(activeTimeRange)
   const [expandedMobile, setExpandedMobile] = useState<string | null>(null)
-
+  const [topConvoOpen, setTopConvoOpen] = useState(false);
   const mediaTypeData = [
     { name: "Twitter", value: 75, color: "#1DA1F2" },
     { name: "Blue Sky", value: 10, color: "#9c27b0" },
@@ -116,7 +119,7 @@ export function InfluencerPage() {
                         </td>
                       </tr>
                     ) : influencers && influencers.length > 0 ? (
-                      influencers.map((influencer, index) => (
+                      influencers.map((influencer: any, index: any) => (
                         <tr key={influencer.id} className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
                           <td className="px-4 py-4">
                             <div className="flex items-center">
@@ -129,7 +132,11 @@ export function InfluencerPage() {
                               </div>
                               <div className="min-w-0 flex-1">
                                 <div className="flex items-center">
-                                  <span className="font-medium text-gray-900 truncate">{influencer.name}</span>
+                                  <span
+                                    className="font-medium text-gray-900 truncate cursor-pointer hover:underline"
+                                  >
+                                    <Link href="/influencer/top-conversations">{influencer.name}</Link>
+                                  </span>
                                   {influencer.verified && (
                                     <div className="ml-2 flex-shrink-0">
                                       <svg width="16" height="16" viewBox="0 0 16 16" fill="#1D9BF0">
@@ -179,7 +186,7 @@ export function InfluencerPage() {
                 </div>
               ) : influencers && influencers.length > 0 ? (
                 <div className="space-y-3">
-                  {influencers.map((influencer, index) => (
+                  {influencers.map((influencer: any, index: any) => (
                     <div key={influencer.id} className="border border-gray-200 rounded-lg overflow-hidden bg-white">
                       <div 
                         className="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 transition-colors"
@@ -195,7 +202,11 @@ export function InfluencerPage() {
                           </div>
                           <div className="min-w-0 flex-1">
                             <div className="flex items-center">
-                              <span className="font-medium text-gray-900 truncate">{influencer.name}</span>
+                              <span
+                                className="font-medium text-gray-900 truncate cursor-pointer hover:underline"
+                              >
+                                <Link href="/influencer/top-conversations">{influencer.name}</Link>
+                              </span>
                               {influencer.verified && (
                                 <span className="ml-2 flex-shrink-0">
                                   <svg width="16" height="16" viewBox="0 0 16 16" fill="#1D9BF0">

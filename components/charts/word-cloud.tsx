@@ -38,8 +38,7 @@ export function WordCloud({
   }
 
   const getRotationClass = () => {
-    const rotations = ["rotate-0", "-rotate-12", "-rotate-6", "-rotate-3", "rotate-3", "rotate-6", "rotate-12"]
-    return rotations[Math.floor(Math.random() * rotations.length)]
+    return "rotate-0"
   }
 
   const getSpacingClass = (value: number) => {
