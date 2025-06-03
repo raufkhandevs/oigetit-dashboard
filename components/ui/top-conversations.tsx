@@ -116,12 +116,12 @@ export function TopConversations({ onClose }: { onClose?: () => void }) {
     <div className="bg-gray-100">
       <div className="bg-white rounded-md shadow-sm max-w-full mx-auto border border-gray-200">
         {/* Header Row */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between px-6 py-3 border-b border-gray-100 gap-2 md:gap-0">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between px-6 py-1 md:py-0 border-b border-gray-100 gap-2 md:gap-0">
           <h2 className="text-lg font-semibold text-gray-900">Top Conversations</h2>
           <div className="flex flex-row items-center gap-3">
-            <span className="text-xs text-gray-500 font-medium">SORT BY</span>
-            <div className="flex flex-col md:flex-row items-start md:items-center gap-1 md:gap-3">
-              <div className="flex items-center bg-blue-50 rounded px-3 py-1 text-blue-700 text-xs font-semibold">
+            <span className="text-xs font-bold">SORT BY</span>
+            <div className="flex flex-row items-center gap-1 sm:gap-3">
+              <div className="flex items-center px-3 py-3 text-[#5c6bc0] text-xs font-semibold border-b-2 border-[#5c6bc0]">
                 <MessageCircle className="w-4 h-4 mr-1" /> Engagement (Most Engaging)
               </div>
               {/* ChartCard header icons */}
